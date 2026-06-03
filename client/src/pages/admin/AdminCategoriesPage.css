@@ -1,0 +1,126 @@
+.admin-categories-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.admin-categories-header h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--admin-text);
+  letter-spacing: -0.5px;
+}
+
+.admin-categories-header p {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+}
+
+.admin-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.admin-category-card {
+  padding: 24px;
+  background: var(--admin-bg-card);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 159, 0, 0.2);
+}
+
+.cat-left {
+  gap: 20px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.cat-image-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-full);
+  background: var(--admin-bg-secondary);
+  border: 1px solid var(--admin-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  color: var(--admin-primary);
+  font-size: 22px;
+  box-shadow: 0 0 12px var(--admin-primary-glow);
+  transition: all 0.3s;
+}
+
+.admin-category-card:hover .cat-image-circle {
+  transform: scale(1.05);
+  background: var(--admin-primary-glow);
+  color: var(--admin-primary);
+  border-color: var(--admin-primary);
+}
+
+.cat-image-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cat-details {
+  flex: 1;
+}
+
+.cat-details h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin-bottom: 4px;
+}
+
+.cat-details p {
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cat-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: 16px;
+}
+
+@media (max-width: 992px) {
+  .admin-categories-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .admin-category-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+  .cat-actions {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}

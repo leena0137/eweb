@@ -1,0 +1,191 @@
+/* ============================================
+   DEAL SECTION — Premium Flash Sale Design
+   ============================================ */
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+@keyframes dealFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.deal-section-wrapper {
+  background: linear-gradient(135deg, #fff8f0 0%, #f7fbff 58%, #fff 100%);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 159, 0, 0.12);
+  box-shadow: 0 8px 40px rgba(255, 159, 0, 0.06);
+  overflow: hidden;
+  animation: dealFadeUp 0.6s ease both;
+}
+
+.deal-section-container {
+  padding: var(--spacing-lg);
+}
+
+/* ---- Header row ---- */
+.deal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 159, 0, 0.12);
+  padding-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.deal-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.deal-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--secondary);
+  letter-spacing: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deal-title svg {
+  color: var(--accent);
+}
+
+/* ---- Countdown Timer ---- */
+.countdown-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #fff1f1 0%, #ffe4e4 100%);
+  border: 1.5px solid rgba(211, 47, 47, 0.15);
+  color: var(--danger);
+  padding: 7px 14px;
+  border-radius: 50px;
+  box-shadow: 0 4px 14px rgba(211, 47, 47, 0.08);
+}
+
+.timer-icon {
+  display: flex;
+  font-size: 14px;
+}
+
+.timer-unit {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+}
+
+.timer-val {
+  font-family: var(--mono, 'Courier New', monospace);
+  font-size: 17px;
+  font-weight: 900;
+  background: #fff;
+  color: var(--danger);
+  padding: 2px 7px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  min-width: 28px;
+  text-align: center;
+}
+
+.timer-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(211, 47, 47, 0.6);
+  margin-left: 2px;
+}
+
+.timer-colon {
+  font-weight: 900;
+  font-size: 15px;
+  color: rgba(211, 47, 47, 0.5);
+  animation: pulseGlow 1s ease-in-out infinite;
+}
+
+.timer-suffix {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: rgba(211, 47, 47, 0.75);
+  margin-left: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* ---- View All button ---- */
+.view-all-btn {
+  font-size: 13px;
+  padding: 9px 22px;
+  border-radius: 50px;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(40, 116, 240, 0.15);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.view-all-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(40, 116, 240, 0.28);
+}
+
+/* ---- Deal Products Grid ---- */
+.deal-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 1100px) {
+  .deal-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .deal-header,
+  .deal-header-left {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .view-all-btn {
+    width: 100%;
+  }
+
+  .deal-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .deal-products-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .deal-section-container {
+    padding: 14px;
+  }
+
+  .countdown-timer {
+    width: 100%;
+    justify-content: center;
+    padding: 7px 8px;
+  }
+
+  .timer-val {
+    font-size: 15px;
+    min-width: 26px;
+  }
+}
