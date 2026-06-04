@@ -30,7 +30,7 @@ const AdminOrdersPage = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/orders/all', {
+      const res = await api.get('/orders/admin/all', {
         params: {
           status,
           page: currentPage,

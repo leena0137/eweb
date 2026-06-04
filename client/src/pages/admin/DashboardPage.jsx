@@ -27,8 +27,8 @@ const DashboardPage = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await api.get('/admin/stats');
-      setStats(res.data);
+      const res = await api.get('/admin/dashboard');
+      setStats(res.data.data);
     } catch (err) {
       toast.error('Failed to load dashboard stats');
       console.error(err);
@@ -58,8 +58,8 @@ const DashboardPage = () => {
     );
   }
 
-  const maxSale = stats?.monthlySales
-    ? Math.max(...stats.monthlySales.map((s) => s.revenue || 0), 1)
+  const maxSale = stats?.chartData
+    ? Math.max(...stats.chartData.map((s) => s.sales || 0), 1)
     : 1;
 
   return (
@@ -86,7 +86,7 @@ const DashboardPage = () => {
           <div className="admin-stat-card-top">
             <div className="admin-stat-card-info">
               <span className="admin-stat-card-label">Total Orders</span>
-              <span className="admin-stat-card-value">{stats?.totalOrders || 0}</span>
+              <span className="admin-stat-card-value">{stats?.stats?.totalOrders || 0}</span>
             </div>
             <div className="admin-stat-card-icon">
               <FaShoppingBag />
@@ -100,7 +100,7 @@ const DashboardPage = () => {
             <div className="admin-stat-card-info">
               <span className="admin-stat-card-label">Total Revenue</span>
               <span className="admin-stat-card-value">
-                {formatPrice(stats?.totalRevenue || 0)}
+                {formatPrice(stats?.stats?.totalRevenue || 0)}
               </span>
             </div>
             <div className="admin-stat-card-icon">
@@ -114,7 +114,7 @@ const DashboardPage = () => {
           <div className="admin-stat-card-top">
             <div className="admin-stat-card-info">
               <span className="admin-stat-card-label">Total Products</span>
-              <span className="admin-stat-card-value">{stats?.totalProducts || 0}</span>
+              <span className="admin-stat-card-value">{stats?.stats?.totalProducts || 0}</span>
             </div>
             <div className="admin-stat-card-icon">
               <FaBox />
@@ -127,7 +127,7 @@ const DashboardPage = () => {
           <div className="admin-stat-card-top">
             <div className="admin-stat-card-info">
               <span className="admin-stat-card-label">Total Customers</span>
-              <span className="admin-stat-card-value">{stats?.totalCustomers || 0}</span>
+              <span className="admin-stat-card-value">{stats?.stats?.totalCustomers || 0}</span>
             </div>
             <div className="admin-stat-card-icon">
               <FaUsers />
@@ -148,19 +148,18 @@ const DashboardPage = () => {
             </div>
           </div>
           <div className="admin-bar-chart">
-            {monthLabels.map((month, i) => {
-              const sale = stats?.monthlySales?.find((s) => s.month === i + 1);
-              const revenue = sale?.revenue || 0;
+            {stats?.chartData?.map((data) => {
+              const revenue = data.sales || 0;
               const height = maxSale > 0 ? (revenue / maxSale) * 100 : 0;
               return (
-                <div className="admin-bar-col" key={month}>
+                <div className="admin-bar-col" key={data.month}>
                   <div className="admin-bar-value">{formatPrice(revenue)}</div>
                   <div
                     className="admin-bar"
                     style={{ height: `${Math.max(height, 2)}%` }}
-                    title={`${month}: ${formatPrice(revenue)}`}
+                    title={`${data.month}: ${formatPrice(revenue)}`}
                   />
-                  <div className="admin-bar-label">{month}</div>
+                  <div className="admin-bar-label">{data.month.split(' ')[0]}</div>
                 </div>
               );
             })}
@@ -227,10 +226,10 @@ const DashboardPage = () => {
                     </td>
                     <td>{order.user?.name || 'N/A'}</td>
                     <td style={{ color: '#9a9cae' }}>{formatDate(order.createdAt)}</td>
-                    <td style={{ fontWeight: 600 }}>{formatPrice(order.totalAmount)}</td>
+                    <td style={{ fontWeight: 600 }}>{formatPrice(order.totalPrice)}</td>
                     <td>
-                      <span className={`admin-status-badge ${getStatusClass(order.status)}`}>
-                        {order.status}
+                      <span className={`admin-status-badge ${getStatusClass(order.orderStatus)}`}>
+                        {order.orderStatus}
                       </span>
                     </td>
                   </tr>

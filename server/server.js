@@ -97,20 +97,20 @@ app.use('/api/coupons', coupons);
 app.use('/api/payment', payment);
 app.use('/api/admin', admin);
 
-// Basic root route for server verification
-app.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Indiacart24 E-Commerce API is running smoothly.',
-  });
-});
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// Handling 404 routes
-app.use((req, res, next) => {
+// Handling 404 for API routes
+app.use('/api', (req, res, next) => {
   res.status(404).json({
     success: false,
     message: `API Route not found: ${req.originalUrl}`,
   });
+});
+
+// All other GET requests not handled before will return the React app
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
 });
 
 // Global Error Handler

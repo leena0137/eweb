@@ -15,6 +15,8 @@
   height: 72px;
   display: flex;
   align-items: center;
+  position: relative;
+  z-index: 10;
 }
 
 .nav-top-container {
@@ -281,7 +283,7 @@
   padding: var(--spacing-xs) 0;
   display: flex;
   flex-direction: column;
-  z-index: 101;
+  z-index: 9999;
   border: 1px solid var(--border);
   animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -361,6 +363,8 @@
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
 }
 
 .category-links {

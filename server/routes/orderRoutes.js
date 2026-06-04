@@ -14,11 +14,13 @@ router.use(protect);
 
 router.post('/', createOrder);
 router.get('/my-orders', getMyOrders);
-router.get('/:id', getOrderById);
-router.put('/:id/cancel', cancelOrder);
 
-// Admin only routes
+// Admin only routes (must be BEFORE /:id to avoid dynamic param matching)
 router.get('/admin/all', admin, getAllOrders);
 router.put('/:id/status', admin, updateOrderStatus);
+
+// Dynamic param routes last
+router.get('/:id', getOrderById);
+router.put('/:id/cancel', cancelOrder);
 
 module.exports = router;
