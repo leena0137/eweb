@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { load } from '@cashfreepayments/cashfree-js';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -106,14 +107,10 @@ const CheckoutPage = () => {
     return true;
   };
 
-  // Helper to load Razorpay SDK dynamically
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
+  // Initialize Cashfree SDK
+  const initializeCashfree = async () => {
+    return await load({
+      mode: "sandbox", // Use "production" for live
     });
   };
 
@@ -136,23 +133,21 @@ const CheckoutPage = () => {
           pincode: shippingAddress.pincode,
           phone: shippingAddress.phone,
         },
-        paymentMethod: paymentMethod === 'COD' ? 'COD' : 'Razorpay',
+        paymentMethod: paymentMethod === 'COD' ? 'COD' : 'Cashfree',
         paymentInfo,
         discount: couponDiscount,
         couponApplied: coupon?._id || null,
       };
 
       if (paymentMethod === 'Online') {
-        const isLoaded = await loadRazorpayScript();
-        if (!isLoaded) {
-          toast.error('Failed to load payment gateway. Are you online?');
-          setIsSubmitting(false);
-          return;
-        }
+        const cashfree = await initializeCashfree();
 
-        // 1. Create order on backend
-        const { data: orderData } = await api.post('/payment/razorpay/create-order', {
-          amount: cartTotal
+        // 1. Create order on backend to get payment_session_id
+        const { data: orderData } = await api.post('/payment/cashfree/create-order', {
+          amount: cartTotal,
+          customer_name: shippingAddress.name,
+          customer_phone: shippingAddress.phone,
+          customer_email: user?.email || 'test@example.com'
         });
 
         if (!orderData.success) {
@@ -161,31 +156,26 @@ const CheckoutPage = () => {
           return;
         }
 
-        const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_O00n3X2x4e0jJ7',
-          amount: orderData.data.amount,
-          currency: 'INR',
-          name: 'IndiaCart24',
-          description: 'E-commerce Purchase',
-          order_id: orderData.data.id,
-          prefill: {
-            name: shippingAddress.name,
-            contact: shippingAddress.phone,
-            email: user?.email || '',
-          },
-          theme: { color: '#2874f0' },
-          handler: async function (response) {
+        const checkoutOptions = {
+          paymentSessionId: orderData.payment_session_id,
+          redirectTarget: "_modal",
+        };
+
+        cashfree.checkout(checkoutOptions).then(async (result) => {
+          if (result.error) {
+            toast.error(result.error.message || 'Payment cancelled or failed');
+            setIsSubmitting(false);
+          }
+          if (result.paymentDetails) {
             try {
               // 2. Verify payment on backend
-              const verifyRes = await api.post('/payment/razorpay/verify', {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
+              const verifyRes = await api.post('/payment/cashfree/verify', {
+                order_id: orderData.order_id
               });
 
               if (verifyRes.data.success) {
                 // 3. Complete order
-                orderPayload.paymentInfo.transactionId = response.razorpay_payment_id;
+                orderPayload.paymentInfo.transactionId = verifyRes.data.payment_id || orderData.order_id;
                 orderPayload.paymentInfo.status = 'completed';
                 
                 const finalOrderRes = await api.post('/orders', orderPayload);
@@ -193,22 +183,16 @@ const CheckoutPage = () => {
                   clearCart();
                   navigate('/order-success');
                 }
+              } else {
+                 toast.error('Payment verification failed.');
+                 setIsSubmitting(false);
               }
             } catch (err) {
               toast.error('Payment verification failed.');
               setIsSubmitting(false);
             }
-          },
-          modal: {
-            ondismiss: function() {
-              setIsSubmitting(false);
-              toast.error('Payment cancelled');
-            }
           }
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
+        });
         return; // Don't proceed to final order creation here, handler will do it
       }
 
@@ -356,7 +340,7 @@ const CheckoutPage = () => {
                   <input type="radio" name="payment" value="Online" checked={paymentMethod === 'Online'} onChange={() => setPaymentMethod('Online')} />
                   <div className="payment-option-icon"><FaCreditCard /></div>
                   <div className="payment-option-text">
-                    <strong>Pay Online Securely (Razorpay)</strong>
+                    <strong>Pay Online Securely (Cashfree)</strong>
                     <span>Cards, UPI, NetBanking, Wallets supported</span>
                   </div>
                 </label>
@@ -390,7 +374,7 @@ const CheckoutPage = () => {
                 <h3>Payment Mode</h3>
                 <p>
                   <strong>
-                    {paymentMethod === 'COD' ? 'Cash on Delivery (COD)' : 'Razorpay Online (UPI/Cards)'}
+                    {paymentMethod === 'COD' ? 'Cash on Delivery (COD)' : 'Cashfree Online (UPI/Cards)'}
                   </strong>
                 </p>
                 <button className="btn-edit-inline" onClick={() => setStep(2)}>Change Payment Method</button>
