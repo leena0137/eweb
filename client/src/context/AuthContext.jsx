@@ -34,17 +34,14 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, []);
 
-  // Register User
-  const register = async (name, email, password, phone) => {
+  // Register User / Send OTP
+  const register = async (name, email, phone) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.post('/auth/register', { name, email, password, phone });
+      const res = await api.post('/auth/register', { name, email, phone });
       if (res.data.success) {
-        setUser(res.data.data);
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.data));
-        return { success: true };
+        return { success: true, message: res.data.message };
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Registration failed. Try again.';
@@ -55,12 +52,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Login User
-  const login = async (email, password) => {
+  // Login User / Send OTP
+  const login = async (email) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await api.post('/auth/login', { email });
+      if (res.data.success) {
+        return { success: true, message: res.data.message };
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Login failed. Try again.';
+      setError(msg);
+      return { success: false, message: msg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Verify OTP
+  const verifyOTP = async (email, otp) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.post('/auth/verify-otp', { email, otp });
       if (res.data.success) {
         setUser(res.data.data);
         localStorage.setItem('token', res.data.token);
@@ -68,7 +83,7 @@ export const AuthProvider = ({ children }) => {
         return { success: true };
       }
     } catch (err) {
-      const msg = err.response?.data?.message || 'Invalid email or password.';
+      const msg = err.response?.data?.message || 'Invalid or expired OTP.';
       setError(msg);
       return { success: false, message: msg };
     } finally {
@@ -168,6 +183,7 @@ export const AuthProvider = ({ children }) => {
         error,
         register,
         login,
+        verifyOTP,
         logout,
         updateProfile,
         changePassword,

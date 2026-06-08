@@ -9,11 +9,13 @@ const {
   changePassword,
   forgotPassword,
   resetPassword,
+  verifyOTP,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/verify-otp', verifyOTP);
 router.post('/logout', protect, logout);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);

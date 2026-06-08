@@ -2,83 +2,147 @@ const User = require('../models/User');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
 
-// @desc    Register a new user
+// @desc    Register a new user / Send OTP
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, phone } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ success: false, message: 'Name and email are required.' });
+    }
 
     // Check if user exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
+    let user = await User.findOne({ email });
+    if (user) {
       return res.status(400).json({
         success: false,
-        message: 'A user with this email address already exists.',
+        message: 'A user with this email address already exists. Please login instead.',
       });
     }
 
-    // Create user
-    const user = await User.create({
+    // Create user without password
+    user = await User.create({
       name,
       email,
-      password,
       phone: phone || '',
+      isEmailVerified: false
     });
 
-    const token = user.generateAuthToken();
+    // Generate and send OTP
+    const otp = user.generateOTP();
+    await user.save({ validateBeforeSave: false });
 
-    res.status(201).json({
+    const message = `
+      <h1>Welcome to Indiacart24! 🎉</h1>
+      <p>Hi <strong>${name}</strong>, your verification code is:</p>
+      <div style="text-align: center; margin: 30px 0;">
+        <span style="display: inline-block; padding: 14px 32px; background: #f3f4f6; color: #1a1a2e; font-weight: 800; border-radius: 8px; font-size: 24px; letter-spacing: 4px;">${otp}</span>
+      </div>
+      <p style="color: #888; font-size: 13px;">This OTP expires in 10 minutes.</p>
+    `;
+
+    await sendEmail({
+      to: user.email,
+      subject: 'Indiacart24 - Your Registration OTP',
+      html: message,
+    });
+
+    res.status(200).json({
       success: true,
-      message: 'Account registered successfully.',
-      token,
-      data: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-        avatar: user.avatar,
-        addresses: user.addresses,
-      },
+      message: 'OTP sent to your email. Please verify to complete registration.',
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Login user
+// @desc    Login user / Send OTP
 // @route   POST /api/auth/login
 // @access  Public
 exports.login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email } = req.body;
 
-    // Validate email & password
-    if (!email || !password) {
+    if (!email) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide both email and password.',
+        message: 'Please provide your email address.',
       });
     }
 
     // Check for user
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({
+      return res.status(404).json({
         success: false,
-        message: 'Invalid email or password.',
+        message: 'No account found with this email. Please create an account.',
       });
     }
 
-    // Check if password matches
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({
+    // Generate and send OTP
+    const otp = user.generateOTP();
+    await user.save({ validateBeforeSave: false });
+
+    const message = `
+      <h1>Login Request</h1>
+      <p>Hi <strong>${user.name}</strong>, here is your One-Time Password (OTP) to log in to Indiacart24:</p>
+      <div style="text-align: center; margin: 30px 0;">
+        <span style="display: inline-block; padding: 14px 32px; background: #f3f4f6; color: #1a1a2e; font-weight: 800; border-radius: 8px; font-size: 24px; letter-spacing: 4px;">${otp}</span>
+      </div>
+      <p style="color: #888; font-size: 13px;">This OTP expires in 10 minutes. Do not share this code with anyone.</p>
+    `;
+
+    await sendEmail({
+      to: user.email,
+      subject: 'Indiacart24 - Login OTP',
+      html: message,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent to your email. Please enter it to login.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify OTP and Login
+// @route   POST /api/auth/verify-otp
+// @access  Public
+exports.verifyOTP = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
+    }
+
+    const hashedOTP = crypto
+      .createHash('sha256')
+      .update(otp)
+      .digest('hex');
+
+    const user = await User.findOne({
+      email,
+      otp: hashedOTP,
+      otpExpire: { $gt: Date.now() },
+    }).select('+otp +otpExpire');
+
+    if (!user) {
+      return res.status(400).json({
         success: false,
-        message: 'Invalid email or password.',
+        message: 'Invalid or expired OTP. Please request a new one.',
       });
     }
+
+    // OTP matched, mark as verified and clear OTP
+    user.isEmailVerified = true;
+    user.otp = undefined;
+    user.otpExpire = undefined;
+    await user.save({ validateBeforeSave: false });
 
     const token = user.generateAuthToken();
 
@@ -225,8 +289,9 @@ exports.forgotPassword = async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    // Create reset URL
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/auth/reset-password/${resetToken}`;
+    // Create reset URL (points to the frontend page)
+    const clientUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
+    const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
     const message = `
       <h1>Password Reset Request</h1>
@@ -283,6 +348,93 @@ exports.resetPassword = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Password reset successfully. You can now log in with your new password.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify email address
+// @route   GET /api/auth/verify-email/:token
+// @access  Public
+exports.verifyEmail = async (req, res, next) => {
+  try {
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(req.params.token)
+      .digest('hex');
+
+    const user = await User.findOne({
+      emailVerificationToken: hashedToken,
+      emailVerificationExpire: { $gt: Date.now() },
+    }).select('+emailVerificationToken +emailVerificationExpire');
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification link is invalid or has expired.',
+      });
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: 'Email verified successfully!',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Resend verification email
+// @route   POST /api/auth/resend-verification
+// @access  Private
+exports.resendVerification = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified.',
+      });
+    }
+
+    const verificationToken = user.generateEmailVerificationToken();
+    await user.save({ validateBeforeSave: false });
+
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    const verifyUrl = `${clientUrl}/verify-email/${verificationToken}`;
+
+    const message = `
+      <h1>Verify Your Email</h1>
+      <p>Hi <strong>${user.name}</strong>, please verify your email address by clicking the link below:</p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${verifyUrl}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #ff9f00, #ff8f00); color: #1a1a2e; font-weight: 700; text-decoration: none; border-radius: 8px; font-size: 14px;">Verify Email Address</a>
+      </div>
+      <p style="color: #888; font-size: 13px;">This link expires in 24 hours.</p>
+    `;
+
+    await sendEmail({
+      to: user.email,
+      subject: 'Indiacart24 - Verify Your Email Address',
+      html: message,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Verification email sent successfully.',
     });
   } catch (error) {
     next(error);

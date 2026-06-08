@@ -157,6 +157,26 @@
   border-left: 4px solid var(--danger);
 }
 
+/* Forgot password link */
+.login-forgot-link {
+  text-align: right;
+  margin-top: -12px;
+  margin-bottom: 8px;
+}
+
+.login-forgot-link a {
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.login-forgot-link a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
 /* Submit button */
 .login-submit-btn {
   width: 100%;
@@ -298,6 +318,26 @@
   .login-form-panel {
     padding: 32px 24px;
   }
+}
+
+/* Back Button */
+.login-back-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 24px;
+  transition: color 0.2s ease;
+}
+
+.login-back-btn:hover {
+  color: var(--primary);
 }
 
 @media (max-width: 480px) {
