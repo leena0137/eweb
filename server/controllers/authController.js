@@ -390,6 +390,58 @@ exports.verifyEmail = async (req, res, next) => {
   }
 };
 
+// @desc    Login with email + password (no OTP)
+// @route   POST /api/auth/login-password
+// @access  Public
+exports.loginWithPassword = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide your email and password.',
+      });
+    }
+
+    const user = await User.findOne({ email }).select('+password');
+
+    if (!user || !user.password) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password.',
+      });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password.',
+      });
+    }
+
+    const token = user.generateAuthToken();
+
+    res.status(200).json({
+      success: true,
+      message: 'Logged in successfully.',
+      token,
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        avatar: user.avatar,
+        addresses: user.addresses,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Resend verification email
 // @route   POST /api/auth/resend-verification
 // @access  Private
