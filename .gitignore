@@ -7,7 +7,6 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 uploads/
-dist/
 build/
 coverage/
 .vscode/
