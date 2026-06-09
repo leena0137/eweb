@@ -16,6 +16,9 @@ connectDB();
 
 const app = express();
 
+// FIX FOR HOSTINGER
+app.set('trust proxy', 1);
+
 // Body Parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,14 +34,13 @@ if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
 // Set security headers
 app.use(
   helmet({
-    crossOriginResourcePolicy: false, // Allow loading local images in frontend
+    crossOriginResourcePolicy: false,
   })
 );
 
 // Enable CORS
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
     if (!origin) return callback(null, true);
 
     const allowed =
@@ -59,17 +61,19 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Bypass-Tunnel-Reminder'],
 };
+
 app.use(cors(corsOptions));
 
 // Set static folder for uploads
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Rate limiting (100 requests per 15 minutes)
+// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 mins
-  max: 200, // Limit to 200 requests per window
+  windowMs: 15 * 60 * 1000,
+  max: 200,
   message: 'Too many requests from this IP, please try again after 15 minutes.',
 });
+
 app.use('/api', limiter);
 
 // Mount routers
@@ -100,7 +104,7 @@ app.use('/api/admin', admin);
 // Serve frontend static files
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// Handling 404 for API routes
+// API 404 handler
 app.use('/api', (req, res, next) => {
   res.status(404).json({
     success: false,
@@ -108,7 +112,7 @@ app.use('/api', (req, res, next) => {
   });
 });
 
-// All other GET requests not handled before will return the React app
+// React routes
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../client/dist', 'index.html'));
 });
@@ -120,14 +124,18 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
-  console.log(`==================================================`);
-  console.log(`Indiacart24 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT} 🚀`);
-  console.log(`==================================================`);
+  console.log('==================================================');
+  console.log(
+    `Indiacart24 Server running in ${
+      process.env.NODE_ENV || 'development'
+    } mode on port ${PORT} 🚀`
+  );
+  console.log('==================================================');
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Error: ${err.message}`);
-  // Close server & exit process
+
   server.close(() => process.exit(1));
 });
