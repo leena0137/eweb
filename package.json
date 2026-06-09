@@ -2,8 +2,9 @@
   "name": "eweb",
   "version": "1.0.0",
   "description": "Indiacart24 Root Package for Deployment",
-  "scripts": {
-    "start": "node server/server.js",
-    "install": "cd server && npm install"
-  }
+"scripts": {
+  "install": "cd server && npm install && cd ../client && npm install",
+  "build": "cd client && npm run build",
+  "start": "cd server && npm start"
+}
 }
