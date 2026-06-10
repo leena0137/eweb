@@ -43,14 +43,19 @@ const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
 
-    const allowed =
-      !origin ||
-      origin.includes('localhost') ||
-      origin.includes('127.0.0.1') ||
-      origin.endsWith('.trycloudflare.com') ||
-      origin.endsWith('.loca.lt') ||
-      origin === process.env.CLIENT_URL;
+    const allowedOrigins = [
+  'https://indiacart24.com',
+  'https://www.indiacart24.com',
+  process.env.CLIENT_URL,
+];
 
+const allowed =
+  !origin ||
+  origin.includes('localhost') ||
+  origin.includes('127.0.0.1') ||
+  origin.endsWith('.trycloudflare.com') ||
+  origin.endsWith('.loca.lt') ||
+  allowedOrigins.includes(origin);
     if (allowed) {
       callback(null, true);
     } else {
