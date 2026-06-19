@@ -55,7 +55,9 @@ const allowed =
   origin.includes('127.0.0.1') ||
   origin.endsWith('.trycloudflare.com') ||
   origin.endsWith('.loca.lt') ||
-  allowedOrigins.includes(origin);
+  origin === process.env.CLIENT_URL ||
+  origin === 'https://indiacart24.com' ||
+  origin === 'https://www.indiacart24.com';
     if (allowed) {
       callback(null, true);
     } else {
