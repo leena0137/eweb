@@ -1,11 +1,10 @@
 const { Cashfree, CFEnvironment } = require("cashfree-pg");
 
-// Configure Cashfree SDK (v5 instance)
-const cashfree = new Cashfree(
-  process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' ? CFEnvironment.PRODUCTION : CFEnvironment.SANDBOX,
-  process.env.CASHFREE_APP_ID,
-  process.env.CASHFREE_SECRET_KEY
-);
+console.log("Cashfree package loaded successfully");
+console.log("Cashfree ENV:", process.env.CASHFREE_ENVIRONMENT);
+
+// TEMP TEST
+const cashfree = {};
 
 // @desc    Create a Cashfree Order
 // @route   POST /api/payment/cashfree/create-order
