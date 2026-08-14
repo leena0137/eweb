@@ -154,29 +154,29 @@ const ContactPage = () => {
                 <div className="info-item">
                   <FaPhoneAlt className="icon" />
                   <div>
-                    <strong>Phone Support</strong>
-                    <p>+91 1800 240 2424 (Toll-Free)</p>
+                    <strong>Mobile Support</strong>
+                    <p>+91 9996848979</p>
                   </div>
                 </div>
                 <div className="info-item">
                   <FaEnvelope className="icon" />
                   <div>
                     <strong>Email Address</strong>
-                    <p>support@indiacart24.com</p>
+                    <p>paisamaker.in@gmail.com</p>
                   </div>
                 </div>
                 <div className="info-item">
                   <FaMapMarkerAlt className="icon" />
                   <div>
-                    <strong>Corporate Headquarters</strong>
-                    <p>Bengaluru Corporate Tower, Outer Ring Road, Karnataka - 560103</p>
+                    <strong>Registered Address (PAISAMAKER)</strong>
+                    <p>C/O MEDA RAM, KODKA, RANIWARA, Jalore, Rajasthan – 343040</p>
                   </div>
                 </div>
                 <div className="info-item">
                   <FaClock className="icon" />
                   <div>
-                    <strong>Operational Hours</strong>
-                    <p>Monday - Saturday: 9:00 AM - 6:00 PM IST</p>
+                    <strong>Customer Support Hours</strong>
+                    <p>Monday – Saturday: 10:00 AM – 05:00 PM (IST)</p>
                   </div>
                 </div>
               </div>

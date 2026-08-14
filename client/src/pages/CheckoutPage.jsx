@@ -110,7 +110,7 @@ const CheckoutPage = () => {
   // Initialize Cashfree SDK
   const initializeCashfree = async () => {
     return await load({
-      mode: "sandbox", // Use "production" for live
+      mode: "production", // Changed to production
     });
   };
 

@@ -9,9 +9,9 @@ const Footer = () => {
       <div className="container footer-container">
         {/* Col 1: About */}
         <div className="footer-col about-col">
-          <h3 className="footer-title">Indiacart<span>24</span></h3>
+          <h3 className="footer-title">India Cart <span>24</span></h3>
           <p className="about-text">
-            India's ultimate online shopping destination. Offering a massive collection of electronics, fashion, mobile phones, home appliances, and more at unbeatable prices.
+            Owned & Operated by PAISAMAKER
           </p>
           <div className="social-links">
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><FaFacebook /></a>
@@ -36,6 +36,7 @@ const Footer = () => {
         <div className="footer-col links-col">
           <h4 className="footer-subtitle">Customer Service</h4>
           <ul className="footer-links-list">
+            <li><Link to="/about">About Us</Link></li>
             <li><Link to="/profile">My Account</Link></li>
             <li><Link to="/contact">Contact Support</Link></li>
             <li><a href="#faq">Frequently Asked Questions</a></li>
@@ -48,16 +49,12 @@ const Footer = () => {
           <h4 className="footer-subtitle">Store Information</h4>
           <ul className="contact-details">
             <li>
-              <FaMapMarkerAlt className="contact-icon" />
-              <span>B-Wing, Tech Park, Outer Ring Road, Sector 4, Bengaluru, KA - 560103</span>
-            </li>
-            <li>
               <FaEnvelope className="contact-icon" />
-              <span>support@indiacart24.com</span>
+              <span>paisamaker.in@gmail.com</span>
             </li>
             <li>
               <FaPhoneAlt className="contact-icon" />
-              <span>+91 98765 43210</span>
+              <span>+91 9996848979</span>
             </li>
           </ul>
         </div>

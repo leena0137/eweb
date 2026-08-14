@@ -1,0 +1,73 @@
+.about-page {
+  padding: var(--spacing-xl) 0;
+  background-color: var(--surface-color);
+  min-height: 80vh;
+}
+
+.about-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.about-header h1 {
+  font-size: 2.5rem;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.about-header p {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.about-content {
+  display: flex;
+  justify-content: center;
+}
+
+.about-card {
+  max-width: 600px;
+  width: 100%;
+  padding: var(--spacing-xl);
+}
+
+.about-card h2 {
+  font-size: 1.8rem;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-color);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: var(--spacing-sm);
+}
+
+.about-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.about-info-list .info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.about-info-list .icon {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-top: 4px;
+}
+
+.about-info-list strong {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.about-info-list p {
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.5;
+}

@@ -1,10 +1,11 @@
 const { Cashfree, CFEnvironment } = require("cashfree-pg");
 
-console.log("Cashfree package loaded successfully");
-console.log("Cashfree ENV:", process.env.CASHFREE_ENVIRONMENT);
-
-// TEMP TEST
-const cashfree = {};
+// Configure Cashfree SDK for v6
+const cashfree = new Cashfree(
+  process.env.CASHFREE_ENVIRONMENT === 'PRODUCTION' ? CFEnvironment.PRODUCTION : CFEnvironment.SANDBOX,
+  process.env.CASHFREE_APP_ID,
+  process.env.CASHFREE_SECRET_KEY
+);
 
 // @desc    Create a Cashfree Order
 // @route   POST /api/payment/cashfree/create-order
@@ -30,7 +31,7 @@ exports.createCashfreeOrder = async (req, res) => {
       }
     };
 
-    cashfree.PGCreateOrder("2023-08-01", request)
+    cashfree.PGCreateOrder(request)
       .then((response) => {
         const paymentSessionId = response.data.payment_session_id;
         res.status(200).json({
@@ -64,7 +65,7 @@ exports.verifyCashfreeOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: 'order_id is required' });
     }
 
-    cashfree.PGOrderFetchPayments("2023-08-01", order_id)
+    cashfree.PGOrderFetchPayments(order_id)
       .then((response) => {
         // Find if any payment was successful
         const payments = response.data || [];
