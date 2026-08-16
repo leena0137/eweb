@@ -36,29 +36,44 @@ app.use(
 );
 
 // Enable CORS
+const allowedOrigins = [
+  'https://indiacart24.com',
+  'https://www.indiacart24.com',
+  process.env.CLIENT_URL,
+];
+
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Postman, etc.)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      return callback(null, true);
+    }
 
     const allowed =
-      !origin ||
+      allowedOrigins.includes(origin) ||
       origin.includes('localhost') ||
       origin.includes('127.0.0.1') ||
       origin.endsWith('.trycloudflare.com') ||
-      origin.endsWith('.loca.lt') ||
-      origin === process.env.CLIENT_URL;
+      origin.endsWith('.loca.lt');
 
     if (allowed) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+      return callback(null, true);
     }
+
+    console.log('❌ Blocked Origin:', origin);
+    return callback(new Error('Not allowed by CORS'));
   },
+
   credentials: true,
+
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Bypass-Tunnel-Reminder'],
+
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Bypass-Tunnel-Reminder',
+  ],
 };
+
 app.use(cors(corsOptions));
 
 // Set static folder for uploads
