@@ -6,7 +6,8 @@ const {
   confirmPayment,
 } = require('../controllers/paymentController');
 const { createRazorpayOrder, verifyPayment } = require('../controllers/razorpayController');
-// const { createCashfreeOrder, verifyCashfreeOrder } = require('../controllers/cashfreeController');const { protect } = require('../middleware/auth');
+// const { createCashfreeOrder, verifyCashfreeOrder } = require('../controllers/cashfreeController');
+const { protect } = require('../middleware/auth');
 
 router.use(protect);
 
